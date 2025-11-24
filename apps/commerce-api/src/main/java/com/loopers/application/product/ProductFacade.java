@@ -1,5 +1,6 @@
 package com.loopers.application.product;
 
+import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.like.LikeRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
@@ -17,10 +18,17 @@ import java.util.List;
 public class ProductFacade {
     private final ProductRepository productRepository;
     private final LikeRepository likeRepository;
+    private final BrandRepository brandRepository;
 
 
     @Transactional
     public ProductInfo registerProduct(ProductV1Dto.ProductRequest request) {
+        Long brandId = request.brandId();
+
+        brandRepository.findById(brandId).orElseThrow(
+                () -> new CoreException(ErrorType.NOT_FOUND, "등록하고자 하는 상품의 브랜드가 존재하지 않습니다.")
+        );
+
         Product product = request.toEntity();
         productRepository.save(product);
 
@@ -52,6 +60,7 @@ public class ProductFacade {
 
     @Transactional(readOnly = true)
     public List<ProductInfo> searchProductsByCondition(ProductV1Dto.SearchProductRequest request) {
+        request.filterCondition().conditionValidate();
         request.sortCondition().conditionValidate();
 
         List<Product> products = productRepository.searchProductsByCondition(request);
