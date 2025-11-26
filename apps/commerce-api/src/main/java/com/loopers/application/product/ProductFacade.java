@@ -32,7 +32,7 @@ public class ProductFacade {
         Product product = request.toEntity();
         productRepository.save(product);
 
-        return ProductInfo.from(product, 0);
+        return ProductInfo.from(product);
     }
 
     @Transactional(readOnly = true)
@@ -40,10 +40,7 @@ public class ProductFacade {
         List<Product> products = productRepository.findAll();
 
         return products.stream()
-                .map(product -> {
-                    int likeCount = likeRepository.countByProductId(product.getId());
-                    return ProductInfo.from(product, likeCount);
-                })
+                .map(ProductInfo::from)
                 .toList();
     }
 
@@ -53,9 +50,7 @@ public class ProductFacade {
                 () -> new CoreException(ErrorType.NOT_FOUND, "찾고자 하는 상품이 존재하지 않습니다.")
         );
 
-        int likeCount = likeRepository.countByProductId(id);
-
-        return ProductInfo.from(product, likeCount);
+        return ProductInfo.from(product);
     }
 
     @Transactional(readOnly = true)
@@ -66,10 +61,7 @@ public class ProductFacade {
         List<Product> products = productRepository.searchProductsByCondition(request);
 
         return products.stream()
-                .map(product -> {
-                    int likeCount = likeRepository.countByProductId(product.getId());
-                    return ProductInfo.from(product, likeCount);
-                })
+                .map(ProductInfo::from)
                 .toList();
     }
 }

@@ -27,7 +27,8 @@ public class ProductV1Dto {
                     brandId,
                     name,
                     price,
-                    stock
+                    stock,
+                    0
             );
         }
     }
