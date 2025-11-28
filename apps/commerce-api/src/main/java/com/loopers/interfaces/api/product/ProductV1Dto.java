@@ -54,4 +54,7 @@ public class ProductV1Dto {
             }
         }
     }
+
+    public record ChangePriceRequest(Long id, BigDecimal newPrice) {
+    }
 }
