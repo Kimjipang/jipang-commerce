@@ -8,6 +8,7 @@ import com.loopers.interfaces.api.product.ProductV1Dto;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,7 @@ public class ProductFacade {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "products", key = "'all'")
     public List<ProductInfo> findAllProducts() {
         List<Product> products = productRepository.findAll();
 
@@ -45,6 +47,7 @@ public class ProductFacade {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "product", key = "#id")
     public ProductInfo findProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(
                 () -> new CoreException(ErrorType.NOT_FOUND, "찾고자 하는 상품이 존재하지 않습니다.")
