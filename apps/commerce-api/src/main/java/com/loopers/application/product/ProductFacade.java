@@ -8,10 +8,12 @@ import com.loopers.interfaces.api.product.ProductV1Dto;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Component
@@ -66,5 +68,20 @@ public class ProductFacade {
         return products.stream()
                 .map(ProductInfo::from)
                 .toList();
+    }
+
+    @Transactional
+    @CacheEvict(value = "product", key = "#request.id()")
+    public ProductInfo changePrice(ProductV1Dto.ChangePriceRequest request) {
+        Long id = request.id();
+        BigDecimal newPrice = request.newPrice();
+
+        Product product = productRepository.findById(id).orElseThrow(
+                () -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다.")
+        );
+
+        Product changedProduct = product.changePrice(newPrice);
+
+        return ProductInfo.from(changedProduct);
     }
 }
