@@ -17,11 +17,11 @@ public class PaymentV1Controller implements PaymentV1Spec {
 
     @PostMapping
     @Override
-    public ApiResponse<PaymentV1Dto.TransactionResponse> pay(
-            @RequestHeader String userId,
+    public ApiResponse<PaymentV1Dto.TransactionResponse> requestPayment(
+            @RequestHeader("X-USER-ID") String userId,
             @RequestBody PaymentV1Dto.PaymentRequest request
     ) {
-        PaymentV1Dto.TransactionResponse response = paymentFacade.pay(userId, request);
+        PaymentV1Dto.TransactionResponse response = paymentFacade.requestPayment(userId, request);
 
         return ApiResponse.success(response);
     }
