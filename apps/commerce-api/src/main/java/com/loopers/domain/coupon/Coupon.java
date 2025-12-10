@@ -40,4 +40,8 @@ public class Coupon extends BaseEntity {
         );
     }
 
+    public void useCoupon() {
+        this.quantity--;
+    }
+
 }

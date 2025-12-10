@@ -1,6 +1,8 @@
 package com.loopers.application.order;
 
 import com.loopers.application.orderitem.OrderItemInfo;
+import com.loopers.domain.coupon.Coupon;
+import com.loopers.domain.coupon.CouponRepository;
 import com.loopers.domain.coupon.CouponType;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderRepository;
@@ -26,6 +28,7 @@ public class OrderFacade {
     private final OrderItemRepository orderItemRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final CouponRepository couponRepository;
 
     @Transactional
     public OrderResultInfo createOrder(OrderV1Dto.OrderRequest request) {
@@ -70,7 +73,21 @@ public class OrderFacade {
                         .map(OrderItem::getOrderPrice)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        int rate = CouponType.TEN.getRate();
+        Long couponId = request.couponId();
+
+        Coupon coupon = couponRepository.findById(couponId).orElseThrow(
+                () -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 쿠폰입니다.")
+        );
+
+        if (coupon.getQuantity() > 0) {
+            int rate = coupon.getCouponType().getRate();
+
+            totalPrice = totalPrice
+                    .multiply(BigDecimal.valueOf(100 - rate))
+                    .divide(BigDecimal.valueOf(100));
+
+            coupon.useCoupon();
+        }
 
         Order order = request.toEntity(totalPrice);
         Order saved = orderRepository.save(order);
