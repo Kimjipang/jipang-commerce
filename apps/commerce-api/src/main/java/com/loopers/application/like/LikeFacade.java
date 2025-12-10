@@ -9,6 +9,7 @@ import com.loopers.interfaces.api.like.LikeV1Dto;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ public class LikeFacade {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public LikeInfo doLike(LikeV1Dto.LikeRequest request) {
@@ -43,7 +45,7 @@ public class LikeFacade {
                     Like newLike = request.toEntity();
                     likeRepository.save(newLike);
 
-                    product.addLikeCount();
+                    publisher.publishEvent(new LikeCreateEvent(userId, productId));
 
                     return LikeInfo.from(newLike);
                 });
