@@ -2,7 +2,6 @@ package com.loopers.application.like;
 
 import com.loopers.domain.like.Like;
 import com.loopers.domain.like.LikeRepository;
-import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.interfaces.api.like.LikeV1Dto;
@@ -35,7 +34,7 @@ public class LikeFacade {
                 () -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 유저입니다.")
         );
 
-        Product product = productRepository.findById(productId).orElseThrow(
+        productRepository.findById(productId).orElseThrow(
                 () -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 상품입니다.")
         );
 
