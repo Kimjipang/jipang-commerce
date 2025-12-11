@@ -3,7 +3,6 @@ package com.loopers.application.order;
 import com.loopers.application.orderitem.OrderItemInfo;
 import com.loopers.domain.coupon.Coupon;
 import com.loopers.domain.coupon.CouponRepository;
-import com.loopers.domain.coupon.CouponType;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.orderitem.OrderItem;
@@ -15,6 +14,7 @@ import com.loopers.interfaces.api.order.OrderV1Dto;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +29,7 @@ public class OrderFacade {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final CouponRepository couponRepository;
+    private final ApplicationEventPublisher publisher;
 
     @Transactional
     public OrderResultInfo createOrder(OrderV1Dto.OrderRequest request) {
@@ -55,7 +56,7 @@ public class OrderFacade {
                             );
 
                             if (product.getStock() < item.quantity()) {
-                                throw new CoreException(ErrorType.BAD_REQUEST, product.getName() + "상품의 재고가 부족합니다.");
+                                throw new CoreException(ErrorType.BAD_REQUEST, product.getName() + " 상품의 재고가 부족합니다.");
                             }
 
                             product.decreaseStock(item.quantity());
@@ -85,9 +86,9 @@ public class OrderFacade {
             totalPrice = totalPrice
                     .multiply(BigDecimal.valueOf(100 - rate))
                     .divide(BigDecimal.valueOf(100));
-
-            coupon.useCoupon();
         }
+
+        publisher.publishEvent(new OrderCreatedEvent(couponId));
 
         Order order = request.toEntity(totalPrice);
         Order saved = orderRepository.save(order);
