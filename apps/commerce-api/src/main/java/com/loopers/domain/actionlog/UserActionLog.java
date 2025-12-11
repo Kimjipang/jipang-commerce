@@ -24,11 +24,16 @@ public class UserActionLog extends BaseEntity {
     @Column(name = "product_id", nullable = false)
     private Long productId;
 
-    public UserActionLog(Long productId) {
+    @Enumerated(EnumType.STRING)
+    @Column(name = "action_type", nullable = false)
+    private ActionType actionType;
+
+    public UserActionLog(Long productId, ActionType actionType) {
         this.productId = productId;
+        this.actionType = actionType;
     }
 
     public static UserActionLog create(ProductLookedUpEvent event) {
-        return new UserActionLog(event.productId());
+        return new UserActionLog(event.productId(), event.actionType());
     }
 }
