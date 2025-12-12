@@ -1,5 +1,7 @@
 package com.loopers.application.like;
 
+import com.loopers.application.product.UserActionEvent;
+import com.loopers.domain.actionlog.ActionType;
 import com.loopers.domain.like.Like;
 import com.loopers.domain.like.LikeRepository;
 import com.loopers.domain.product.ProductRepository;
@@ -45,6 +47,7 @@ public class LikeFacade {
                     likeRepository.save(newLike);
 
                     publisher.publishEvent(new LikeCreateEvent(userId, productId));
+                    publisher.publishEvent(new UserActionEvent(userId, productId, ActionType.DO_LIKE));
 
                     return LikeInfo.from(newLike);
                 });

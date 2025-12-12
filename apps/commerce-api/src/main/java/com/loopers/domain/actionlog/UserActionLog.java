@@ -1,6 +1,6 @@
 package com.loopers.domain.actionlog;
 
-import com.loopers.application.product.ProductLookedUpEvent;
+import com.loopers.application.product.UserActionEvent;
 import com.loopers.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -17,9 +17,8 @@ public class UserActionLog extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /*
-    유저는 추후 추가 예정
-     */
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @Column(name = "product_id", nullable = false)
     private Long productId;
@@ -28,12 +27,13 @@ public class UserActionLog extends BaseEntity {
     @Column(name = "action_type", nullable = false)
     private ActionType actionType;
 
-    public UserActionLog(Long productId, ActionType actionType) {
+    public UserActionLog(Long userId, Long productId, ActionType actionType) {
+        this.userId = userId;
         this.productId = productId;
         this.actionType = actionType;
     }
 
-    public static UserActionLog create(ProductLookedUpEvent event) {
-        return new UserActionLog(event.productId(), event.actionType());
+    public static UserActionLog create(UserActionEvent event) {
+        return new UserActionLog(event.userId(), event.productId(), event.actionType());
     }
 }

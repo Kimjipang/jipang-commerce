@@ -1,5 +1,6 @@
 package com.loopers.application.product;
 
+import com.loopers.domain.actionlog.ActionType;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
@@ -55,7 +56,8 @@ public class ProductFacade {
                 () -> new CoreException(ErrorType.NOT_FOUND, "찾고자 하는 상품이 존재하지 않습니다.")
         );
 
-        publisher.publishEvent(new ProductLookedUpEvent(product.getId()));
+        // 유저 ID는 임시로 하드 코딩했습니다. 추후 인증/인가 기능이 추가되면 수정할 예정입니다.
+        publisher.publishEvent(new UserActionEvent(1L, product.getId(), ActionType.PRODUCT_LOOKED_UP));
 
         return ProductInfo.from(product);
     }
