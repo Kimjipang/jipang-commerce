@@ -1,6 +1,7 @@
 package com.loopers.application.order;
 
 import com.loopers.application.orderitem.OrderItemInfo;
+import com.loopers.application.product.UserActionEvent;
 import com.loopers.domain.coupon.Coupon;
 import com.loopers.domain.coupon.CouponRepository;
 import com.loopers.domain.order.Order;
@@ -80,13 +81,15 @@ public class OrderFacade {
                 () -> new CoreException(ErrorType.NOT_FOUND, "존재하지 않는 쿠폰입니다.")
         );
 
-        if (coupon.getQuantity() > 0) {
-            int rate = coupon.getCouponType().getRate();
-
-            totalPrice = totalPrice
-                    .multiply(BigDecimal.valueOf(100 - rate))
-                    .divide(BigDecimal.valueOf(100));
+        if (coupon.getQuantity() <= 0) {
+            throw new CoreException(ErrorType.BAD_REQUEST, "남은 쿠폰이 존재하지 않습니다.");
         }
+
+        int rate = coupon.getCouponType().getRate();
+
+        totalPrice = totalPrice
+                .multiply(BigDecimal.valueOf(100 - rate))
+                .divide(BigDecimal.valueOf(100));
 
         publisher.publishEvent(new OrderCreatedEvent(couponId));
 
