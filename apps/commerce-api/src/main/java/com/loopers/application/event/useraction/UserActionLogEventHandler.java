@@ -1,6 +1,6 @@
-package com.loopers.application.event.product;
+package com.loopers.application.event.useraction;
 
-import com.loopers.application.product.ProductLookedUpEvent;
+import com.loopers.application.product.UserActionEvent;
 import com.loopers.domain.actionlog.UserActionLog;
 import com.loopers.infrastructure.actionlog.UserActionLogJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,14 +12,13 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
-public class ProductEventHandler {
+public class UserActionLogEventHandler {
     private final UserActionLogJpaRepository userActionLogJpaRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onProductLookedUp(ProductLookedUpEvent event) {
+    public void onUserAction(UserActionEvent event) {
         UserActionLog userActionLog = UserActionLog.create(event);
         userActionLogJpaRepository.save(userActionLog);
-
     }
 }
