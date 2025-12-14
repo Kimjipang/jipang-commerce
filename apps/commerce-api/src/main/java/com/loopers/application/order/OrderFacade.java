@@ -12,6 +12,7 @@ import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.interfaces.api.order.OrderV1Dto;
+import com.loopers.interfaces.api.payment.PaymentV1Dto;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -91,7 +92,7 @@ public class OrderFacade {
                 .multiply(BigDecimal.valueOf(100 - rate))
                 .divide(BigDecimal.valueOf(100));
 
-        publisher.publishEvent(new OrderCreatedEvent(couponId));
+        publisher.publishEvent(new OrderCreatedEvent(couponId, null, null, null, null, null));
 
         Order order = request.toEntity(totalPrice);
         Order saved = orderRepository.save(order);
@@ -102,6 +103,15 @@ public class OrderFacade {
         List<OrderItemInfo> orderItemInfos = orderItems.stream()
                 .map(orderItem -> OrderItemInfo.from(orderItem, orderItem.getOrderPrice()))
                 .toList();
+
+        publisher.publishEvent(new OrderCreatedEvent(
+                couponId,
+                "1351039135",
+                PaymentV1Dto.CardTypeDto.HYUNDAI,
+                "1234-5678-9814-1451",
+                100000L,
+                "http://localhost:8080/api/v1/examples/callback"
+        ));
 
         return new OrderResultInfo(OrderInfo.from(saved), orderItemInfos);
     }
