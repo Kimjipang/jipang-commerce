@@ -4,6 +4,8 @@ import com.loopers.domain.actionlog.ActionType;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.product.ProductViewedMessage;
+import com.loopers.infrastructure.product.ProductViewKafkaProducer;
 import com.loopers.interfaces.api.product.ProductV1Dto;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -16,14 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class ProductFacade {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
-    private final ApplicationEventPublisher publisher;
-
+    private final ProductViewKafkaProducer kafkaProducer;
 
     @Transactional
     public ProductInfo registerProduct(ProductV1Dto.ProductRequest request) {
@@ -57,7 +59,13 @@ public class ProductFacade {
         );
 
         // 유저 ID는 임시로 하드 코딩했습니다. 추후 인증/인가 기능이 추가되면 수정할 예정입니다.
-        publisher.publishEvent(new UserActionEvent(1L, product.getId(), ActionType.PRODUCT_LOOKED_UP));
+        ProductViewedMessage message = new ProductViewedMessage(
+                UUID.randomUUID().toString(),
+                1L,
+                product.getId()
+        );
+
+        kafkaProducer.sendProductViewedMessage(message);
 
         return ProductInfo.from(product);
     }
