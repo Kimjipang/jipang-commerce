@@ -1,10 +1,12 @@
 package com.loopers.application.product;
 
-import com.loopers.domain.actionlog.ActionType;
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.outbox.AggregateType;
+import com.loopers.domain.outbox.OutboxEvent;
+import com.loopers.domain.outbox.OutboxType;
+import com.loopers.domain.outbox.OutboxRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
-import com.loopers.domain.product.ProductViewedMessage;
 import com.loopers.infrastructure.product.ProductViewKafkaProducer;
 import com.loopers.interfaces.api.product.ProductV1Dto;
 import com.loopers.support.error.CoreException;
@@ -12,19 +14,18 @@ import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class ProductFacade {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
+    private final OutboxRepository outBoxRepository;
     private final ProductViewKafkaProducer kafkaProducer;
 
     @Transactional
@@ -51,21 +52,20 @@ public class ProductFacade {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Cacheable(value = "product", key = "#id")
     public ProductInfo findProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(
                 () -> new CoreException(ErrorType.NOT_FOUND, "찾고자 하는 상품이 존재하지 않습니다.")
         );
 
-        // 유저 ID는 임시로 하드 코딩했습니다. 추후 인증/인가 기능이 추가되면 수정할 예정입니다.
-        ProductViewedMessage message = new ProductViewedMessage(
-                UUID.randomUUID().toString(),
-                1L,
-                product.getId()
+        OutboxEvent outBoxEvent = OutboxEvent.of(
+                AggregateType.PRODUCT,
+                product.getId(),
+                OutboxType.PRODUCT_VIEWED
         );
 
-        kafkaProducer.sendProductViewedMessage(message);
+        outBoxRepository.save(outBoxEvent);
 
         return ProductInfo.from(product);
     }
