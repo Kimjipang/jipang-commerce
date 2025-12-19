@@ -7,11 +7,13 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "outbox")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class OutboxEvent extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "aggregate_type", nullable = false)

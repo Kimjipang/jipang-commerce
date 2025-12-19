@@ -20,14 +20,10 @@ public class KafkaOutboxPublisher {
     @Scheduled(fixedDelayString = "1000")
     @Transactional
     public void publish() {
-//        System.out.println("hello");
         List<OutboxEvent> events = outboxRepository.findPending(5);
-        for (OutboxEvent event : events) {
-            System.out.println("event.toString() = " + event.toString());
-        }
 
         for (OutboxEvent event : events) {
-            kafkaTemplate.send("product-viewed", event);
+            kafkaTemplate.send("product-viewed", String.valueOf(event.getAggregateId()), event);
 
             event.markAsProcessed();
         }
