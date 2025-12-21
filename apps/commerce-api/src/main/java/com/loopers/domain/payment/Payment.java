@@ -1,7 +1,6 @@
 package com.loopers.domain.payment;
 
 import com.loopers.domain.BaseEntity;
-import com.loopers.interfaces.api.payment.PaymentV1Dto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -37,11 +36,11 @@ public class Payment extends BaseEntity {
         this.status = status;
     }
 
-    public static Payment create(PaymentV1Dto.PaymentRequest request) {
+    public static Payment create(String userId, String orderNo, String transactionKey, PaymentStatus status) {
         return new Payment(
-                request.userId(),
-                request.orderNo(),
-                request.transactionKey(),
+                userId,
+                orderNo,
+                transactionKey,
                 PaymentStatus.PENDING
         );
     }

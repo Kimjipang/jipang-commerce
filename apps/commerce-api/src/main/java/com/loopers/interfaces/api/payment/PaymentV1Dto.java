@@ -1,8 +1,5 @@
 package com.loopers.interfaces.api.payment;
 
-
-import com.loopers.domain.payment.PaymentStatus;
-
 public class PaymentV1Dto {
     public record TransactionResponse(
             String transactionKey,
@@ -30,6 +27,6 @@ public class PaymentV1Dto {
         HYUNDAI
     }
 
-    public record PaymentRequest(String userId, String orderNo, String transactionKey, PaymentStatus status) {
+    public record PaymentRequest(String userId, String orderNo, String transactionKey) {
     }
 }
