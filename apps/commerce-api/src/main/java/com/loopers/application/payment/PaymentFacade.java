@@ -24,11 +24,15 @@ public class PaymentFacade {
         PaymentV1Dto.PaymentRequest paymentRequest = new PaymentV1Dto.PaymentRequest(
                 userId,
                 pgPaymentRequest.orderId(),
-                response.transactionKey(),
-                PaymentStatus.PENDING
+                response.transactionKey()
         );
 
-        Payment payment = Payment.create(paymentRequest);
+        Payment payment = Payment.create(
+                paymentRequest.userId(),
+                paymentRequest.orderNo(),
+                paymentRequest.transactionKey(),
+                PaymentStatus.PENDING
+        );
         paymentRepository.save(payment);
 
         return response;
