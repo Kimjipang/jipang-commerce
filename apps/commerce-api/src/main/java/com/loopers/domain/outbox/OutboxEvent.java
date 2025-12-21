@@ -22,7 +22,7 @@ public class OutboxEvent extends BaseEntity {
     @Column(name = "aggregate_id", nullable = false)
     private Long aggregateId;
 
-//    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false)
     private OutboxType eventType;
 
