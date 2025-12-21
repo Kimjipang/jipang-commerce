@@ -7,7 +7,6 @@ import com.loopers.domain.outbox.OutboxType;
 import com.loopers.domain.outbox.OutboxRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
-import com.loopers.infrastructure.product.ProductViewKafkaProducer;
 import com.loopers.interfaces.api.product.ProductV1Dto;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
@@ -26,7 +25,6 @@ public class ProductFacade {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
     private final OutboxRepository outBoxRepository;
-    private final ProductViewKafkaProducer kafkaProducer;
 
     @Transactional
     public ProductInfo registerProduct(ProductV1Dto.ProductRequest request) {
