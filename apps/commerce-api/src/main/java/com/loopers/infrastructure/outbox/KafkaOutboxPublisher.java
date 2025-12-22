@@ -2,6 +2,7 @@ package com.loopers.infrastructure.outbox;
 
 import com.loopers.domain.outbox.OutboxEvent;
 import com.loopers.domain.outbox.OutboxRepository;
+import com.loopers.domain.outbox.OutboxType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,13 +18,21 @@ public class KafkaOutboxPublisher {
     private final OutboxRepository outboxRepository;
     private final KafkaTemplate<Object, Object> kafkaTemplate;
 
-    @Scheduled(fixedDelayString = "1000")
+    @Scheduled(fixedDelayString = "60000")
     @Transactional
-    public void publish() {
-        List<OutboxEvent> events = outboxRepository.findPending(5);
+    public void publishProductViewed() {
+        List<OutboxEvent> events = outboxRepository.findPending(2);
 
         for (OutboxEvent event : events) {
-            kafkaTemplate.send("product-viewed", String.valueOf(event.getAggregateId()), event);
+            OutboxType type = event.getEventType();
+
+            if (type.equals(OutboxType.PRODUCT_VIEWED)) {
+                kafkaTemplate.send("product-viewed", String.valueOf(event.getAggregateId()), event);
+            }
+
+            else if (type.equals(OutboxType.PRODUCT_LIKED)) {
+                kafkaTemplate.send("product-liked", String.valueOf(event.getAggregateId()), event);
+            }
 
             event.markAsProcessed();
         }
