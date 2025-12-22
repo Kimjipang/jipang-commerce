@@ -34,8 +34,31 @@ public class ProductMetric extends BaseEntity {
         this.eventType = eventType;
     }
 
-    public static ProductMetric of(Long productId, Long viewCount, Long likeCount, Long salesVolume, ProductEventType eventType) {
-        return new ProductMetric(productId, viewCount, likeCount, salesVolume, eventType);
+    /*
+    - [ ] 리팩토링 예정
+     */
+    public static ProductMetric of(Long productId, ProductEventType eventType) {
+        if (eventType == null) {
+            throw new IllegalArgumentException("정의되지 않은 event type입니다.");
+        }
+
+        return switch (eventType) {
+            case PRODUCT_VIEWED -> ofProductViewed(productId);
+            case PRODUCT_LIKED -> ofProductLiked(productId);
+            case PRODUCT_SALES -> ofProductSales(productId);
+        };
+    }
+
+    public static ProductMetric ofProductViewed(Long productId) {
+        return new ProductMetric(productId, 1L, 0L, 0L, ProductEventType.PRODUCT_VIEWED);
+    }
+
+    public static ProductMetric ofProductLiked(Long productId) {
+        return new ProductMetric(productId, 0L, 1L, 0L, ProductEventType.PRODUCT_LIKED);
+    }
+
+    public static ProductMetric ofProductSales(Long productId) {
+        return new ProductMetric(productId, 0L, 0L, 1L, ProductEventType.PRODUCT_SALES);
     }
 
     public void increaseProductMetric(ProductEventType eventType) {
