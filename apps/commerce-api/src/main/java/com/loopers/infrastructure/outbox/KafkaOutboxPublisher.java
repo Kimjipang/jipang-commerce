@@ -21,7 +21,7 @@ public class KafkaOutboxPublisher {
     @Scheduled(fixedDelayString = "60000")
     @Transactional
     public void publishProductViewed() {
-        List<OutboxEvent> events = outboxRepository.findPending(2);
+        List<OutboxEvent> events = outboxRepository.findPending(10);
 
         for (OutboxEvent event : events) {
             OutboxType type = event.getEventType();
@@ -32,6 +32,10 @@ public class KafkaOutboxPublisher {
 
             else if (type.equals(OutboxType.PRODUCT_LIKED)) {
                 kafkaTemplate.send("product-liked", String.valueOf(event.getAggregateId()), event);
+            }
+
+            else if (type.equals(OutboxType.PRODUCT_SALES)) {
+                kafkaTemplate.send("product-sales", String.valueOf(event.getAggregateId()), event);
             }
 
             event.markAsProcessed();
