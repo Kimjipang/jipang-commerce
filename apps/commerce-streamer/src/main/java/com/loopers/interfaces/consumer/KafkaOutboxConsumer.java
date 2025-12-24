@@ -23,11 +23,11 @@ public class KafkaOutboxConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(
-            topics = {"product-viewed"},
+            topics = {"product-viewed", "product-liked"},
             containerFactory = KafkaConfig.BATCH_LISTENER
     )
     @Transactional
-    public void demoListener(
+    public void productViewedListener(
             List<ConsumerRecord<String, String>> messages,
             Acknowledgment acknowledgment
     ) throws JsonProcessingException {
@@ -39,15 +39,9 @@ public class KafkaOutboxConsumer {
             ProductMetric productMetric = productMetricRepository.findByProductId(productId);
 
             if (productMetric == null) {
-                productMetricRepository.save(
-                        ProductMetric.of(
-                                productId,
-                                0L,
-                                0L,
-                                0L,
-                                ProductEventType.valueOf(eventType)
-                        )
-                );
+                ProductMetric newProductMetric = ProductMetric.of(productId, ProductEventType.valueOf(eventType));
+
+                productMetricRepository.save(newProductMetric);
             }
             else {
                 productMetric.increaseProductMetric(ProductEventType.valueOf(eventType));

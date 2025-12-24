@@ -2,15 +2,25 @@ package com.loopers.infrastructure.outbox;
 
 import com.loopers.domain.outbox.OutboxEvent;
 import com.loopers.domain.outbox.OutboxRepository;
-import lombok.RequiredArgsConstructor;
+import com.loopers.domain.outbox.OutboxStatus;
+import com.loopers.domain.outbox.QOutboxEvent;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.loopers.domain.outbox.QOutboxEvent.outboxEvent;
+
 @Component
-@RequiredArgsConstructor
 public class OutboxRepositoryImpl implements OutboxRepository {
     private final OutboxJpaRepository outBoxJpaRepository;
+    private final JPAQueryFactory queryFactory;
+
+    public OutboxRepositoryImpl(OutboxJpaRepository outBoxJpaRepository, EntityManager entityManager) {
+        this.outBoxJpaRepository = outBoxJpaRepository;
+        this.queryFactory = new JPAQueryFactory(entityManager);
+    }
 
     @Override
     public OutboxEvent save(OutboxEvent outBoxEvent) {
@@ -19,7 +29,12 @@ public class OutboxRepositoryImpl implements OutboxRepository {
 
     @Override
     public List<OutboxEvent> findPending(int limit) {
-        return outBoxJpaRepository.findPending(limit);
+        return queryFactory
+                .selectFrom(outboxEvent)
+                .where(outboxEvent.status.eq(OutboxStatus.PENDING))
+                .orderBy(outboxEvent.createdAt.asc())
+                .limit(limit)
+                .fetch();
     }
 
 }
