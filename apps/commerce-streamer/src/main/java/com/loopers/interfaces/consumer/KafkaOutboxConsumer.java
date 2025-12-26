@@ -44,7 +44,6 @@ public class KafkaOutboxConsumer {
             Acknowledgment acknowledgment
     ) throws JsonProcessingException {
 
-        // 1) 배치 내 productId별 점수 누적
         Map<Long, Double> scoreDelta = new HashMap<>();
 
         for (var record : messages) {
@@ -73,8 +72,7 @@ public class KafkaOutboxConsumer {
             zset.incrementScore(key, String.valueOf(e.getKey()), e.getValue()); // ZINCRBY
         }
 
-        // 3) 일간 키는 TTL 걸어두는 게 운영에 유리 (예: 8일 보관)
-        redisTemplate.expire(key, Duration.ofDays(8));
+        redisTemplate.expire(key, Duration.ofDays(2));
 
         acknowledgment.acknowledge();
     }
