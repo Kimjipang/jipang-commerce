@@ -1,4 +1,4 @@
-package com.loopers.application;
+package com.loopers.application.ranking;
 
 import com.loopers.interfaces.api.ranking.RankingV1Dto;
 import lombok.RequiredArgsConstructor;
