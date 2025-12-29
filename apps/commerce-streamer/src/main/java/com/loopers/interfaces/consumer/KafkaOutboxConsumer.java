@@ -46,6 +46,8 @@ public class KafkaOutboxConsumer {
 
         Map<Long, Double> scoreDelta = new HashMap<>();
 
+        String date = LocalDate.now(KST).format(YYYYMMDD);
+
         for (var record : messages) {
             OutboxEvent value = objectMapper.readValue(record.value(), OutboxEvent.class);
             Long productId = value.aggregateId();
@@ -53,10 +55,10 @@ public class KafkaOutboxConsumer {
 
             scoreDelta.merge(productId, weight(eventType), Double::sum);
 
-            ProductMetric productMetric = productMetricRepository.findByProductId(productId);
+            ProductMetric productMetric = productMetricRepository.findByProductIdAndDate(productId, date);
 
             if (productMetric == null) {
-                ProductMetric newProductMetric = ProductMetric.of(productId, eventType);
+                ProductMetric newProductMetric = ProductMetric.of(productId, date, eventType);
 
                 productMetricRepository.save(newProductMetric);
             }
@@ -65,7 +67,7 @@ public class KafkaOutboxConsumer {
             }
         }
 
-        String key = "ranking:all:" + LocalDate.now(KST).format(YYYYMMDD);
+        String key = "ranking:all:" + date;
         ZSetOperations<String, String> zset = redisTemplate.opsForZSet();
 
         for (var e : scoreDelta.entrySet()) {
@@ -85,3 +87,4 @@ public class KafkaOutboxConsumer {
         };
     }
 }
+
