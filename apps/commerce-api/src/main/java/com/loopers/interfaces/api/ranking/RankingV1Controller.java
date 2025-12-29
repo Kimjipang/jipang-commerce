@@ -1,6 +1,6 @@
 package com.loopers.interfaces.api.ranking;
 
-import com.loopers.application.RankingFacade;
+import com.loopers.application.ranking.RankingFacade;
 import com.loopers.interfaces.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
