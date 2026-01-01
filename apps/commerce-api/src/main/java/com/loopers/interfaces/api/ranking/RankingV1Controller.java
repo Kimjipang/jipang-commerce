@@ -17,10 +17,11 @@ public class RankingV1Controller implements RankingV1ApiSpec {
     @GetMapping
     @Override
     public ApiResponse<RankingV1Dto.ProductRankingPageResponse> getDailyProductRanking(
+            @RequestParam String date,
             @RequestParam int size,
             @RequestParam int page
     ) {
-        RankingV1Dto.ProductRankingPageResponse response = rankingFacade.getDailyProductRanking(page, size);
+        RankingV1Dto.ProductRankingPageResponse response = rankingFacade.getDailyProductRanking(date, page, size);
 
         return ApiResponse.success(response);
     }

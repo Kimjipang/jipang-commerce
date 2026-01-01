@@ -17,14 +17,10 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class RankingFacade {
     private final StringRedisTemplate redisTemplate;
-    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
-    private static final DateTimeFormatter YYYYMMDD = DateTimeFormatter.BASIC_ISO_DATE;
 
-    public RankingV1Dto.ProductRankingPageResponse getDailyProductRanking(int page, int size) {
+    public RankingV1Dto.ProductRankingPageResponse getDailyProductRanking(String date, int page, int size) {
         if (page < 1) page = 1;
         if (size < 1) size = 20;
-
-        String date = LocalDate.now(KST).format(YYYYMMDD);
 
         String key = "ranking:all:" + date;
         ZSetOperations<String, String> zset = redisTemplate.opsForZSet();

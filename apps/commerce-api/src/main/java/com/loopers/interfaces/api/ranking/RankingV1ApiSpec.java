@@ -4,6 +4,6 @@ import com.loopers.interfaces.api.ApiResponse;
 
 public interface RankingV1ApiSpec {
 
-    ApiResponse<RankingV1Dto.ProductRankingPageResponse> getDailyProductRanking(int size, int page);
+    ApiResponse<RankingV1Dto.ProductRankingPageResponse> getDailyProductRanking(String date, int size, int page);
 
 }
